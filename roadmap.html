@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Debugging Data Analyst Agent — 3–5 Day Roadmap</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1f2733;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --orange: #f0883e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.65;
+    padding-bottom: 80px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* ---------- Header ---------- */
+  header {
+    text-align: center;
+    padding: 56px 20px 40px;
+    background: linear-gradient(180deg, #10203a 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 2.2rem; margin-bottom: 10px; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header p.sub { color: var(--muted); font-size: 1.05rem; max-width: 720px; margin: 0 auto; }
+  .badges { margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    background: var(--bg3); border: 1px solid var(--border);
+    padding: 5px 14px; border-radius: 999px; font-size: 0.82rem; color: var(--text);
+  }
+  .badge b { color: var(--accent); }
+
+  /* ---------- Nav ---------- */
+  nav.toc {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+  }
+  nav.toc a {
+    color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500;
+    padding: 4px 8px; border-radius: 6px;
+  }
+  nav.toc a:hover { color: var(--accent); background: var(--bg3); }
+
+  /* ---------- Sections ---------- */
+  section { margin-top: 60px; scroll-margin-top: 70px; }
+  h2 {
+    font-size: 1.6rem; margin-bottom: 6px;
+    border-left: 4px solid var(--accent); padding-left: 14px;
+  }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  section > p.intro { color: var(--muted); margin: 10px 0 22px 18px; max-width: 850px; }
+  h3 { font-size: 1.18rem; margin: 30px 0 12px; color: var(--accent); }
+
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 26px; margin: 16px 0;
+  }
+  .card.accent { border-color: #1f4a75; }
+  .card.warn { border-color: #5a4210; background: #1c1710; }
+  .card.good { border-color: #1e4a2a; background: #101a12; }
+
+  code.inline {
+    background: var(--bg3); border: 1px solid var(--border);
+    padding: 1px 7px; border-radius: 6px;
+    font-family: Consolas, "Courier New", monospace; font-size: 0.9em; color: #79c0ff;
+  }
+  pre {
+    background: #010409; border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace; font-size: 0.86rem;
+    line-height: 1.55; margin: 14px 0;
+  }
+  pre .cm { color: #7ee787; }   /* comment */
+  pre .kw { color: #ff7b72; }   /* keyword */
+  pre .fn { color: #d2a8ff; }   /* function */
+  pre .st { color: #a5d6ff; }   /* string */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th { background: var(--bg3); color: var(--accent); font-weight: 600; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  ul.clean { list-style: none; padding-left: 0; }
+  ul.check li::before { content: "✅ "; }
+  ul.cross li::before { content: "❌ "; }
+  ul.arrow li::before { content: "→ "; color: var(--accent); }
+  ul.clean { padding-left: 6px; }
+  ul.clean li { padding-left: 22px; position: relative; margin: 6px 0; }
+  ul.check li::before, ul.cross li::before, ul.arrow li::before { position: absolute; left: 0; }
+  ul.check, ul.cross, ul.arrow { list-style: none; padding-left: 6px; }
+  ul.clean li { margin: 6px 0; }
+
+  /* ---------- Flow diagram ---------- */
+  .flowwrap { overflow-x: auto; padding: 10px 0; }
+  .flow { display: flex; flex-direction: column; align-items: center; min-width: 720px; }
+  .frow { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+  .node {
+    border: 2px solid var(--accent); border-radius: 10px;
+    padding: 10px 18px; font-weight: 600; font-size: 0.9rem;
+    background: var(--bg2); text-align: center; white-space: nowrap;
+  }
+  .node.io { border-color: var(--purple); color: var(--purple); }
+  .node.llm { border-color: var(--yellow); color: var(--yellow); }
+  .node.code { border-color: var(--orange); color: var(--orange); }
+  .node.exec { border-color: var(--red); color: var(--red); }
+  .node.crit { border-color: var(--green); color: var(--green); }
+  .node.final { border-color: #79c0ff; background: #10203a; color: #79c0ff; }
+  .arr { color: var(--muted); font-size: 1.15rem; }
+  .loop-label { font-size: 0.78rem; color: var(--red); white-space: nowrap; }
+  .ok-label { font-size: 0.78rem; color: var(--green); white-space: nowrap; }
+  .divider {
+    width: 90%; border-top: 2px dashed var(--border); margin: 18px 0;
+    text-align: center; position: relative;
+  }
+  .divider span {
+    position: relative; top: -0.85em; background: var(--bg);
+    padding: 0 14px; color: var(--muted); font-size: 0.8rem; letter-spacing: 1px;
+  }
+
+  /* ---------- Day plan ---------- */
+  .day {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; margin: 22px 0; overflow: hidden;
+  }
+  .day-head {
+    display: flex; align-items: center; gap: 16px; padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-head.d1 { background: linear-gradient(90deg, #14243d, transparent); border-left: 5px solid var(--accent); }
+  .day-head.d2 { background: linear-gradient(90deg, #2a2035, transparent); border-left: 5px solid var(--purple); }
+  .day-head.d3 { background: linear-gradient(90deg, #12301c, transparent); border-left: 5px solid var(--green); }
+  .day-head.d45 { background: linear-gradient(90deg, #3a2a14, transparent); border-left: 5px solid var(--yellow); }
+  .day-num { font-size: 1.5rem; font-weight: 800; }
+  .day-head.d1 .day-num { color: var(--accent); }
+  .day-head.d2 .day-num { color: var(--purple); }
+  .day-head.d3 .day-num { color: var(--green); }
+  .day-head.d45 .day-num { color: var(--yellow); }
+  .day-title { flex: 1; }
+  .day-title b { font-size: 1.05rem; }
+  .day-title small { display: block; color: var(--muted); font-size: 0.83rem; }
+  .day-body { padding: 20px 26px 26px; }
+  .block { margin: 14px 0; padding: 14px 18px; background: var(--bg3); border-radius: 10px; }
+  .block b.time { color: var(--orange); font-variant-numeric: tabular-nums; }
+  .target {
+    margin-top: 16px; padding: 14px 18px; border-radius: 10px;
+    background: #101a12; border: 1px dashed #1e4a2a; font-size: 0.93rem;
+  }
+  .target b { color: var(--green); }
+  input[type="checkbox"] { accent-color: var(--green); width: 15px; height: 15px; margin-right: 8px; vertical-align: -2px; }
+  label.chk { cursor: pointer; display: inline-block; margin: 3px 0; }
+
+  /* ---------- Layers (critique) ---------- */
+  .layer {
+    display: flex; gap: 16px; align-items: stretch; margin: 12px 0;
+    border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .layer .lnum {
+    flex: 0 0 64px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 800; color: var(--bg);
+  }
+  .layer:nth-child(odd) .lnum { background: var(--accent); }
+  .layer:nth-child(even) .lnum { background: var(--green); }
+  .layer .lbody { flex: 1; background: var(--bg2); padding: 14px 18px; }
+  .layer .lbody b { color: var(--accent); }
+  .layer:nth-child(even) .lbody b { color: var(--green); }
+  .cost { float: right; font-size: 0.75rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+
+  footer {
+    text-align: center; margin-top: 80px; color: var(--muted); font-size: 0.85rem;
+    border-top: 1px solid var(--border); padding-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 Self-Debugging <span>Data Analyst Agent</span></h1>
+  <p class="sub">A LangGraph agent that ingests messy CSVs, cleans them autonomously, writes pandas code,
+     executes it in a sandbox, critiques its own output — and loops back to fix itself.
+     Full roadmap + build plan for <b>Google Gemini</b>, finishing with a <b>Streamlit UI</b>.</p>
+  <div class="badges">
+    <span class="badge">⏱ <b>3–5 days</b></span>
+    <span class="badge">🐍 Python · LangGraph · pandas</span>
+    <span class="badge">✨ Google Gemini (langchain-google-genai)</span>
+    <span class="badge">🖥 Streamlit final deliverable</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#overview">Overview</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#cleaning">Cleaning Phase</a>
+  <a href="#critique">Critique Design</a>
+  <a href="#state">State Schema</a>
+  <a href="#stack">Tech Stack</a>
+  <a href="#plan">Day-by-Day Plan</a>
+  <a href="#gemini">Gemini Tips</a>
+  <a href="#risks">Risks &amp; Edge Cases</a>
+</nav>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<section id="overview">
+  <h2><span class="num">01</span>Project Overview</h2>
+  <p class="intro">Why this project matters and what you'll learn from it.</p>
+
+  <div class="card accent">
+    <h3 style="margin-top:0">🎯 The Goal</h3>
+    <p>Build an agent that takes <b>(raw messy CSV + natural-language question)</b> and returns
+       a validated answer — writing its own pandas code, catching its own bugs
+       (hallucinated columns, wrong dtypes, empty results), and repairing itself without human intervention.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">🧠 Skills You'll Build</h3>
+    <table>
+      <tr><th>Skill</th><th>Where it shows up in this project</th></tr>
+      <tr><td><b>Graph-based agent design</b></td><td>LangGraph nodes, conditional edges, retry loops, shared state</td></tr>
+      <tr><td><b>Prompt engineering for code gen</b></td><td>Constrained generation using profile schemas to prevent hallucinated columns</td></tr>
+      <tr><td><b>Self-correction loops</b></td><td>The critique node — layered rule-based checks before LLM judgment</td></tr>
+      <tr><td><b>Safe execution</b></td><td>Sandboxed <code class="inline">exec()</code>, restricted namespaces, timeouts</td></tr>
+      <tr><td><b>Data reasoning</b></td><td>The cleaning phase — deciding what "clean" means from a data profile, not assumptions</td></tr>
+      <tr><td><b>Product delivery</b></td><td>Streamlit app, logging/tracing, README for your portfolio</td></tr>
+    </table>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">💡 The Core Insight</h3>
+    <p>Most tutorials skip the <b>cleaning phase</b> because "clean" is ambiguous — is this numeric column
+       with <code class="inline">"N/A"</code> strings broken? Are three date formats in one column a bug or reality?
+       Should duplicates be dropped? Forcing the agent to reason from a <b>data profile</b> instead of guessing
+       is exactly the retrieval/reasoning skill real agentic systems need. That's why we added it.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="architecture">
+  <h2><span class="num">02</span>Full Architecture</h2>
+  <p class="intro">Two connected LangGraph subgraphs sharing one state object: a <b>Cleaning Graph</b> and an <b>Analysis Graph</b>. Each has its own generate → execute → critique loop with independent retry counters.</p>
+
+  <div class="card">
+    <div class="flowwrap">
+      <div class="flow">
+        <!-- Cleaning subgraph -->
+        <div class="frow"><div class="node io">📥 Load CSV</div><span class="arr">→</span><div class="node io">🔍 Profile Data</div></div>
+        <div class="frow"><span class="arr">↓</span></div>
+        <div class="frow"><div class="node llm">📝 Plan Cleaning <small style="color:var(--muted)">(LLM)</small></div><span class="arr">→</span><div class="node llm">🧹 Generate Cleaning Code <small style="color:var(--muted)">(LLM)</small></div></div>
+        <div class="frow"><span class="arr">↓</span></div>
+        <div class="frow"><div class="node exec">⚙️ Execute Cleaning <small style="color:var(--muted)">(sandbox)</small></div><span class="arr">→</span><div class="node crit">🧪 Critique Cleaning</div></div>
+        <div class="frow"><span class="arr">↓</span><span class="ok-label">✓ good → continue</span>&nbsp;&nbsp;&nbsp;<span class="loop-label">✗ bad ↺ retries &lt; 3 → regenerate w/ feedback</span></div>
+
+        <div class="divider"><span>ANALYSIS SUBGRAPH</span></div>
+
+        <div class="frow"><div class="node llm">🗺 Plan Analysis <small style="color:var(--muted)">(LLM)</small></div><span class="arr">→</span><div class="node llm">💻 Generate Code <small style="color:var(--muted)">(LLM)</small></div></div>
+        <div class="frow"><span class="arr">↓</span></div>
+        <div class="frow"><div class="node exec">⚙️ Execute <small style="color:var(--muted)">(sandbox)</small></div><span class="arr">→</span><div class="node crit">⚖️ Critique Answer</div></div>
+        <div class="frow"><span class="arr">↓</span><span class="ok-label">✓ good → finish</span>&nbsp;&nbsp;&nbsp;<span class="loop-label">✗ bad ↺ retries &lt; 3 → regenerate w/ suggested_fix</span></div>
+
+        <div class="frow"><span class="arr">↓</span></div>
+        <div class="frow"><div class="node final">💬 Synthesize Final Answer</div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Node-by-node breakdown</h3>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--purple)">1️⃣ Load CSV + Profile Data</h3>
+    <p><b>No LLM here.</b> Compute a structured profile programmatically — much cheaper and more reliable than dumping a huge CSV into context:</p>
+    <ul class="clean arrow">
+      <li>dtypes per column, % missing, # unique values</li>
+      <li>sample of 5 rows</li>
+      <li><b>Flag suspicious columns:</b> numeric-looking strings, inconsistent date formats, mixed-case categories (<code class="inline">Yes/yes/YES</code>), potential ID columns, outliers via IQR</li>
+    </ul>
+    <p style="margin-top:10px">The <b>profile</b> (not raw data) is what gets fed to the LLM downstream.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--yellow)">2️⃣ Plan Cleaning → 3️⃣ Generate Cleaning Code</h3>
+    <p>The LLM reads the profile and outputs cleaning steps <b>in plain English first</b>
+       (<i>"strip whitespace in 'name'", "convert 'date' to datetime"</i>). This separation makes debugging easy — you can log and inspect plans without reading code.</p>
+    <p>Then a second call converts the plan into pandas code, <b>heavily constrained</b>: give it exact column names + dtypes from the profile and instruct it to only use those names. <b>This is your first line of defense against hallucinated columns.</b></p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--red)">4️⃣ Execute Cleaning</h3>
+    <p>Run inside sandboxed <code class="inline">exec()</code> with a restricted namespace (only <code class="inline">pandas</code>/<code class="inline">numpy</code> available; no <code class="inline">os</code>, no network). Catch exceptions and capture them as strings for the critique step. Wrap with a timeout guard.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--green)">5️⃣ Critique Cleaning</h3>
+    <p>Rule-based checks run <b>before any LLM call</b>:</p>
+    <ul class="check clean">
+      <li>Did execution throw an error? → fail, send error back</li>
+      <li>Still nulls in columns the plan claimed to fix? → fail</li>
+      <li>Row count collapsed to near-zero (over-aggressive dropna)? → fail</li>
+      <li>Do dtypes now match what was intended? → fail if not</li>
+    </ul>
+    <p>Only if all rules pass, run one optional Gemini sanity check on a before/after sample:
+       <i>"does this look correctly cleaned? yes/no + why."</i></p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--yellow)">6️⃣ Plan Analysis</h3>
+    <p>Same pattern as cleaning: Gemini reads the <b>cleaned schema + the user's question</b> and writes an English analysis plan before touching code. This step is what lets the agent answer <i>"which region had the highest growth rate"</i> instead of only <i>"what is the average X"</i>.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--yellow)">7️⃣+8️⃣ Generate Code → Execute (analysis version)</h3>
+    <p>Reuses the same sandbox as Day 1. Generated pandas code operates on the cleaned dataframe and must store its result in a known variable (e.g., <code class="inline">result = ...</code>) so execution can capture it deterministically.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:#79c0ff">9️⃣ Synthesize Final Answer</h3>
+    <p>Validated result + original question → Gemini phrases a clean natural-language answer,
+       optionally with a one-line <i>"how I got this"</i> explanation for transparency.
+       If retries were exhausted: graceful fallback — <i>"I couldn't confidently answer this; here's my best attempt and why."</i></p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="cleaning">
+  <h2><span class="num">03</span>The Cleaning Phase — Deep Dive</h2>
+  <p class="intro">Your addition, and conceptually the hardest part. Here's how each ambiguity gets resolved by the pipeline.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">Why profiling comes first</h3>
+    <p>Cleaning decisions must come from <b>evidence</b>, not vibes. The profiler produces facts the planner can reason over:</p>
+    <pre><span class="cm"># profiler.py — pure pandas, zero LLM cost</span>
+<span class="kw">def</span> <span class="fn">profile_dataframe</span>(df: pd.DataFrame) -> dict:
+    report = {}
+    <span class="kw">for</span> col <span class="kw">in</span> df.columns:
+        s = df[col]
+        entry = {
+            <span class="st">"dtype"</span>: str(s.dtype),
+            <span class="st">"null_pct"</span>: round(s.isna().mean() * 100, 1),
+            <span class="st">"n_unique"</span>: int(s.nunique()),
+            <span class="st">"sample"</span>: s.dropna().astype(str).head(<span class="st">5</span>).tolist(),
+            <span class="st">"flags"</span>: [],
+        }
+        <span class="cm"># numeric-looking but stored as object → dtype coercion candidate</span>
+        <span class="kw">if</span> s.dtype == object:
+            coerced = pd.to_numeric(s.str.strip().replace({<span class="st">""</span>: None}), errors=<span class="st">"coerce"</span>)
+            <span class="kw">if</span> coerced.notna().mean() > <span class="st">0.9</span>:
+                entry[<span class="st">"flags"</span>].append(<span class="st">"numeric_in_object_dtype"</span>)
+            parsed = pd.to_datetime(s, errors=<span class="st">"coerce"</span>, format=<span class="st">"mixed"</span>)
+            <span class="kw">if</span> parsed.notna().mean() > <span class="st">0.9</span>:
+                entry[<span class="st">"flags"</span>].append(<span class="st">"date_like_string"</span>)
+        <span class="cm"># mixed-case categoricals: Yes / yes / YES</span>
+        <span class="kw">if</span> s.dtype == object <span class="kw">and</span> s.nunique() &lt; <span class="st">50</span>:
+            lowered = set(s.dropna().astype(str).str.lower())
+            <span class="kw">if</span> len(lowered) &lt; s.nunique():
+                entry[<span class="st">"flags"</span>].append(<span class="st">"mixed_case_categorical"</span>)
+        <span class="cm"># potential ID column</span>
+        <span class="kw">if</span> s.nunique() == len(df):
+            entry[<span class="st">"flags"</span>].append(<span class="st">"possible_id_column"</span>)
+        <span class="cm"># IQR outliers (numeric only)</span>
+        <span class="kw">if</span> pd.api.types.is_numeric_dtype(s):
+            q1, q3 = s.quantile([<span class="st">0.25</span>, <span class="st">0.75</span>])
+            iqr = q3 - q1
+            n_out = ((s &lt; q1 - <span class="st">1.5</span>*iqr) | (s > q3 + <span class="st">1.5</span>*iqr)).sum()
+            <span class="kw">if</span> n_out:
+                entry[<span class="st">"flags"</span>].append(f<span class="st">"{n_out}_iqr_outliers"</span>)
+        report[col] = entry
+    report[<span class="st">"_meta"</span>] = {<span class="st">"n_rows"</span>: len(df), <span class="st">"dup_rows"</span>: int(df.duplicated().sum())}
+    <span class="kw">return</span> report</pre>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">How ambiguities get decided</h3>
+    <table>
+      <tr><th>Messy situation</th><th>Profile evidence</th><th>Planner decision</th></tr>
+      <tr><td>Numeric column with <code class="inline">"N/A"</code> strings</td><td><code class="inline">numeric_in_object_dtype</code></td><td>Coerce to numeric; decide whether N/A → NaN or fill</td></tr>
+      <tr><td>Date column in 3 formats</td><td><code class="inline">date_like_string</code> + samples show formats</td><td>Parse with <code class="inline">pd.to_datetime(format="mixed")</code></td></tr>
+      <tr><td>Duplicate rows</td><td><code class="inline">dup_rows &gt; 0</code>; ID column flagged?</td><td>If ID exists and dups share IDs → likely true dups, drop; else keep &amp; note</td></tr>
+      <tr><td><code class="inline">Yes/yes/YES</code></td><td><code class="inline">mixed_case_categorical</code></td><td>Normalize case</td></tr>
+      <tr><td>Weird extreme values</td><td><code class="inline">N_iqr_outliers</code></td><td><b>Flag, don't delete</b> — outliers may be legitimate business data</td></tr>
+    </table>
+  </div>
+
+  <div class="card good">
+    <h3 style="margin-top:0">🔑 Design rule</h3>
+    <p>The cleaning critique verifies the <b>outcome against the plan</b>: if the plan said "fix nulls in 'age'", the checker re-runs
+       <code class="inline">df["age"].isna()</code> after execution. Plans become machine-checkable contracts — that's what makes self-correction possible rather than hopeful.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="critique">
+  <h2><span class="num">04</span>Critique Node Design — The Core of the Project</h2>
+  <p class="intro">This is where the agent catches its own mistakes instead of you catching them. Design principle: <b>cheapest checks first</b>, escalate to LLM judgment only when rules pass.</p>
+
+  <div class="layer">
+    <div class="lnum">L1</div>
+    <div class="lbody">
+      <span class="cost">⚡ free · pre-execution</span>
+      <b>Static column validation (AST walk)</b>
+      <p>Parse the generated code with Python's <code class="inline">ast</code> module, extract every attribute/subscript reference like <code class="inline">df["colname"]</code> or <code class="inline">df.colname</code>, and diff against the actual dataframe columns <b>before running anything</b>. Hallucinated columns die instantly without wasting an execution.</p>
+      <pre><span class="kw">import</span> ast, re
+
+<span class="kw">def</span> <span class="fn">find_column_refs</span>(code: str, cols: set[str]) -> list[str]:
+    tree = ast.parse(code)
+    refs = set()
+    <span class="kw">for</span> node <span class="kw">in</span> ast.walk(tree):
+        <span class="cm"># df["col"] pattern</span>
+        <span class="kw">if</span> isinstance(node, ast.Constant) <span class="kw">and</span> isinstance(node.value, str):
+            refs.add(node.value)
+        <span class="cm"># df.col pattern</span>
+        <span class="kw">if</span> isinstance(node, ast.Attribute) <span class="kw">and</span> isinstance(node.value, ast.Name):
+            <span class="kw">if</span> node.value.id == <span class="st">"df"</span>:
+                refs.add(node.attr)
+    <span class="kw">return</span> sorted(r <span class="kw">for</span> r <span class="kw">in</span> refs <span class="kw">if</span> r <span class="kw">not in</span> cols <span class="kw">and not</span> r.startswith(<span class="st">"_"</span>))</pre>
+      <p style="color:var(--muted);font-size:0.87em">Tip: also do a fuzzy match — if <code class="inline">"Region "</code> was referenced but the column is <code class="inline">"Region"</code>, suggest the strip fix directly in <code class="inline">suggested_fix</code>.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="lnum">L2</div>
+    <div class="lbody">
+      <span class="cost">⚡ free · post-execution</span>
+      <b>Execution &amp; emptiness checks</b>
+      <p>Did it error? Is the captured <code class="inline">result</code> <code class="inline">None</code>, an empty DataFrame, or an empty list/dict/Series? All fail automatically with the exception string fed back verbatim into the next generation attempt — error messages are the best repair context you have.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="lnum">L3</div>
+    <div class="lbody">
+      <span class="cost">⚡ free · post-execution</span>
+      <b>Type-consistency check</b>
+      <p>Does the answer type match what the question implies?
+         <i>"How many…"</i> should return a number — not a DataFrame dump.
+         <i>"Which…"</i> should return a label/category, not an aggregate.
+         A simple regex classifier on the question picks the expected shape; mismatch → fail with a targeted hint.</p>
+      <table>
+        <tr><th>Question starts with…</th><th>Expected result type</th></tr>
+        <tr><td>how many / how much / count / total</td><td><code class="inline">int | float</code></td></tr>
+        <tr><td>which / who / name</td><td><code class="inline">str</code> (label)</td></tr>
+        <tr><td>average / mean / ratio / percentage</td><td><code class="inline">float</code> (sanity range check too!)</td></tr>
+        <tr><td>list / top / compare</td><td><code class="inline">list | Series | small DataFrame</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="lnum">L4</div>
+    <div class="lbody">
+      <span class="cost">💸 ~1 Gemini call · last resort</span>
+      <b>Gemini-as-judge (structured JSON)</b>
+      <p>Show Gemini the <b>question + code + cleaned schema + result</b> and ask it to verify logical consistency (percentage over 100%? negative count?). Force JSON output:</p>
+      <pre>{
+  <span class="st">"passes"</span>: false,
+  <span class="st">"reason"</span>: <span class="st">"Result is revenue sum, but question asks for growth rate — needs year-over-year comparison."</span>,
+  <span class="st">"suggested_fix"</span>: <span class="st">"Group by 'region' and compute pct change between 'sales_2023' and 'sales_2024'."</span>
+}</pre>
+      <p><b>The magic ingredient:</b> <code class="inline">suggested_fix</code> is injected as extra context into the next <code class="inline">generate_code</code> call. That's what makes the retry loop actually improve instead of repeating the same mistake.</p>
+    </div>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">Guardrails regardless of layer</h3>
+    <ul class="arrow clean">
+      <li><b>Max retries (3)</b> on both loops, then graceful fallback answer</li>
+      <li><b>Sandboxed exec</b> — restricted globals dict, no filesystem/network access</li>
+      <li><b>Timeouts</b> on every execution (threading or <code class="inline">signal.alarm</code>-style guard) in case of infinite loops in generated code</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="state">
+  <h2><span class="num">05</span>State Schema (Shared Between Subgraphs)</h2>
+  <p class="intro">One TypedDict flows through every node. Fields are grouped so the cleaning graph owns the top half and analysis owns the bottom half.</p>
+
+  <div class="card">
+<pre><span class="kw">from</span> typing_extensions <span class="kw">import</span> TypedDict
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="kw">class</span> <span class="fn">AgentState</span>(TypedDict):
+    <span class="cm"># ── cleaning subgraph ──</span>
+    raw_df_path: str
+    profile_report: dict          <span class="cm"># dtypes, null%, flags, dup rows, samples</span>
+    cleaning_plan: list[str]      <span class="cm"># ["strip whitespace in 'name'", "convert 'date' to datetime"]</span>
+    cleaning_code: str
+    cleaned_df: pd.DataFrame
+    cleaning_errors: list[str]
+    cleaning_retries: int
+
+    <span class="cm"># ── analysis subgraph ──</span>
+    question: str
+    analysis_plan: str
+    generated_code: str
+    execution_result: object
+    execution_error: str | None
+    critique_feedback: dict       <span class="cm"># {"passes": bool, "reason": str, "suggested_fix": str}</span>
+    analysis_retries: int
+
+    <span class="cm"># ── output ──</span>
+    final_answer: str</pre>
+
+    <h3>Graph wiring sketch</h3>
+<pre><span class="kw">from</span> langgraph.graph <span class="kw">import</span> StateGraph, END
+
+g = StateGraph(AgentState)
+g.add_node(<span class="st">"profile"</span>, profile_node)
+g.add_node(<span class="st">"plan_cleaning"</span>, plan_cleaning_node)
+g.add_node(<span class="st">"gen_clean_code"</span>, gen_clean_code_node)
+g.add_node(<span class="st">"exec_cleaning"</span>, exec_cleaning_node)
+g.add_node(<span class="st">"critique_cleaning"</span>, critique_cleaning_node)
+g.add_node(<span class="st">"plan_analysis"</span>, plan_analysis_node)
+g.add_node(<span class="st">"gen_code"</span>, gen_code_node)
+g.add_node(<span class="st">"execute"</span>, execute_node)
+g.add_node(<span class="st">"critique_answer"</span>, critique_answer_node)
+g.add_node(<span class="st">"synthesize"</span>, synthesize_node)
+
+g.set_entry_point(<span class="st">"profile"</span>)
+g.add_edge(<span class="st">"profile"</span>, <span class="st">"plan_cleaning"</span>)
+g.add_edge(<span class="st">"plan_cleaning"</span>, <span class="st">"gen_clean_code"</span>)
+g.add_edge(<span class="st">"gen_clean_code"</span>, <span class="st">"exec_cleaning"</span>)
+g.add_edge(<span class="st">"exec_cleaning"</span>, <span class="st">"critique_cleaning"</span>)
+g.add_conditional_edges(<span class="st">"critique_cleaning"</span>,
+    <span class="kw">lambda</span> s: <span class="st">"plan_analysis"</span> <span class="kw">if</span> s[<span class="st">"cleaning_errors"</span>] == [] <span class="kw">else</span> (
+        <span class="st">"gen_clean_code"</span> <span class="kw">if</span> s[<span class="st">"cleaning_retries"</span>] &lt; MAX_RETRIES <span class="kw">else</span> END))
+<span class="cm"># … same pattern for the analysis loop …</span>
+app = g.compile()</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="stack">
+  <h2><span class="num">06</span>Tech Stack</h2>
+  <p class="intro">Everything chosen to be beginner-friendly, free-tier friendly, and portfolio-worthy.</p>
+  <table>
+    <tr><th>Component</th><th>Choice</th><th>Why</th></tr>
+    <tr><td>Orchestration</td><td><b>LangGraph</b></td><td>First-class state machines, conditional edges, built-in retry patterns, LangSmith tracing</td></tr>
+    <tr><td>LLM</td><td><b>Google Gemini</b> via <code class="inline">langchain-google-genai</code></td><td>Free tier, generous context, strong code generation, native JSON mode</td></tr>
+    <tr><td>Data work</td><td><b>pandas + numpy</b></td><td>Standard; everything generated code uses</td></tr>
+    <tr><td>UI</td><td><b>Streamlit</b></td><td>Fastest path to a demoable web app; file upload + chat box + trace viewer</td></tr>
+    <tr><td>Observability</td><td><b>print/logging</b> → optional <b>LangSmith</b></td><td>See plan → code → critique flow per run; great for demos &amp; debugging</td></tr>
+    <tr><td>Testing data</td><td>Hand-crafted messy CSVs + Kaggle dirty datasets</td><td>You need <i>known</i> dirt to verify convergence</td></tr>
+  </table>
+
+  <div class="card">
+    <h3 style="margin-top:0">Setup commands</h3>
+    <pre>python -m venv .venv && activate  <span class="cm"># Windows: .venv\Scripts\activate</span>
+pip install langgraph langchain-google-genai google-generativeai pandas numpy streamlit python-dotenv
+
+<span class="cm"># .env</span>
+GOOGLE_API_KEY=your_key_here   <span class="cm"># from https://aistudio.google.com/apikey</span></pre>
+    <p style="margin-top:10px;color:var(--muted)">Suggested project layout:</p>
+<pre>agent/
+├── graph.py            <span class="cm"># LangGraph wiring</span>
+├── state.py            <span class="cm"># AgentState</span>
+├── nodes/
+│   ├── profiler.py     <span class="cm"># pure-pandas profiler (no LLM)</span>
+│   ├── planning.py     <span class="cm"># plan_cleaning, plan_analysis</span>
+│   ├── coding.py       <span class="cm"># gen_clean_code, gen_code</span>
+│   ├── executor.py     <span class="cm"># sandboxed exec + timeout</span>
+│   ├── critique.py     <span class="cm"># rule layers L1–L3 + gemini judge L4</span>
+│   └── synthesize.py
+├── prompts/            <span class="cm"># one template file per node</span>
+├── app.py              <span class="cm"># Streamlit UI</span>
+└── run.py              <span class="cm"># CLI: python run.py data.csv "question"</span></pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="plan">
+  <h2><span class="num">07</span>Day-by-Day Build Plan</h2>
+  <p class="intro">3 core days to a working product, plus 2 optional polish days. Check boxes as you go.</p>
+
+  <!-- DAY 1 -->
+  <div class="day">
+    <div class="day-head d1">
+      <div class="day-num">D1</div>
+      <div class="day-title"><b>Setup + Profiler + Cleaning Subgraph</b><small>Goal of the day: end-to-end converging cleaning loop on genuinely messy CSVs</small></div>
+    </div>
+    <div class="day-body">
+      <div class="block"><b class="time">09:00–11:00</b> — Project skeleton<br>
+        <label class="chk"><input type="checkbox"> Create venv, install deps, <code class="inline">.env</code> with GOOGLE_API_KEY</label><br>
+        <label class="chk"><input type="checkbox"> Define <code class="inline">AgentState</code> in state.py</label><br>
+        <label class="chk"><input type="checkbox"> Wire an empty LangGraph skeleton that compiles (nodes as stubs returning state unchanged)</label><br>
+        <label class="chk"><input type="checkbox"> Verify one Gemini call works via <code class="inline">ChatGoogleGenerativeAI(model="gemini-2.0-flash")</code></label>
+      </div>
+      <div class="block"><b class="time">11:00–14:00</b> — Profiler (pure pandas, no LLM)<br>
+        <label class="chk"><input type="checkbox"> Dtypes, null %, unique counts, 5-row sample</label><br>
+        <label class="chk"><input type="checkbox"> Suspicious-column flags: numeric-in-object, date-like strings, mixed-case cats, ID columns, IQR outliers</label><br>
+        <label class="chk"><input type="checkbox"> Duplicate-row detection in _meta</label><br>
+        <label class="chk"><input type="checkbox"> Test manually on 2 hand-made messy CSVs</label>
+      </div>
+      <div class="block"><b class="time">14:00–17:00</b> — Planning + code-gen nodes<br>
+        <label class="chk"><input type="checkbox"> <code class="inline">plan_cleaning</code>: profile → structured English step list (JSON mode)</label><br>
+        <label class="chk"><input type="checkbox"> <code class="inline">gen_clean_code</code>: plan + exact column list/dtypes → pandas code, constrained prompt ("use ONLY these columns")</label><br>
+        <label class="chk"><input type="checkbox"> Log both plan and code to console for inspection</label>
+      </div>
+      <div class="block"><b class="time">17:00–19:00</b> — Executor + critique + retry edge<br>
+        <label class="chk"><input type="checkbox"> Sandboxed <code class="inline">exec()</code> with restricted globals (pandas/numpy only) + timeout wrapper</label><br>
+        <label class="chk"><input type="checkbox"> Rule-based <code class="inline">critique_cleaning</code>: error? residual nulls vs plan? near-zero rows? dtypes match intent?</label><br>
+        <label class="chk"><input type="checkbox"> Conditional retry edge with error text injected back</label><br>
+        <label class="chk"><input type="checkbox"> MAX_RETRIES = 3 + fallback exit</label>
+      </div>
+      <div class="target"><b>✅ Day 1 test target:</b> run end-to-end on 2–3 genuinely messy CSVs (mixed types, missing values, inconsistent formatting) and confirm convergence to clean data within 1–3 retries. <i>Get this rock-solid before Day 2 — cleaning bugs silently corrupt everything downstream.</i></div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day">
+    <div class="day-head d2">
+      <div class="day-num">D2</div>
+      <div class="day-title"><b>Analysis Subgraph + Layered Critique Logic</b><small>Goal of the day: correct answers to varied questions with visible self-repair</small></div>
+    </div>
+    <div class="day-body">
+      <div class="block"><b class="time">09:00–11:00</b> — Reuse + planning<br>
+        <label class="chk"><input type="checkbox"> <code class="inline">plan_analysis</code>: cleaned schema + question → English plan</label><br>
+        <label class="chk"><input type="checkbox"> <code class="inline">gen_code</code> reusing Day 1 sandbox; require <code class="inline">result = ...</code> convention</label><br>
+        <label class="chk"><input type="checkbox"> <code class="inline">execute</code> node capturing exceptions as state fields</label>
+      </div>
+      <div class="block"><b class="time">11:00–15:00</b> — The layered critique (the heart of the project)<br>
+        <label class="chk"><input type="checkbox"> L1: AST column validation diffed against actual columns (pre-execution)</label><br>
+        <label class="chk"><input type="checkbox"> L2: execution error / None / empty-result checks</label><br>
+        <label class="chk"><input type="checkbox"> L3: type-consistency via question classifier (how many → number, which → label, etc.)</label><br>
+        <label class="chk"><input type="checkbox"> L4: Gemini judge with forced JSON {passes, reason, suggested_fix}</label><br>
+        <label class="chk"><input type="checkbox"> Unit-test each layer independently with deliberately broken code snippets</label>
+      </div>
+      <div class="block"><b class="time">15:00–18:00</b> — Retry loop with feedback injection<br>
+        <label class="chk"><input type="checkbox"> Wire critique → generate_code edge passing <code class="inline">suggested_fix</code> as extra context</label><br>
+        <label class="chk"><input type="checkbox"> Verify a hallucinated-column case actually repairs itself across attempts</label><br>
+        <label class="chk"><input type="checkbox"> Add max-retries guard + "couldn't confidently answer" fallback response</label>
+      </div>
+      <div class="target"><b>✅ Day 2 test target:</b> 8–10 questions of varying difficulty against your cleaned datasets — simple aggregates, groupby comparisons, one deliberately ambiguous/impossible question — and confirm sensible retry behavior (log shows distinct fixes per retry, not repeated identical failures).</div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day">
+    <div class="day-head d3">
+      <div class="day-num">D3</div>
+      <div class="day-title"><b>Integration + Streamlit UI + Polish</b><small>Goal of the day: a demoable product with visible internals</small></div>
+    </div>
+    <div class="day-body">
+      <div class="block"><b class="time">09:00–11:00</b> — Connect the graphs<br>
+        <label class="chk"><input type="checkbox"> Cleaning Graph → Analysis Graph as one compiled app with shared state</label><br>
+        <label class="chk"><input type="checkbox"> <code class="inline">synthesize_final_answer</code> node (answer + one-line "how I got this")</label><br>
+        <label class="chk"><input type="checkbox"> Structured logging of every plan → code → critique hop (or LangSmith trace)</label>
+      </div>
+      <div class="block"><b class="time">11:00–15:00</b> — Streamlit app<br>
+        <label class="chk"><input type="checkbox"> File uploader for CSV</label><br>
+        <label class="chk"><input type="checkbox"> Question input + Run button</label><br>
+        <label class="chk"><input type="checkbox"> Show: profile summary, cleaning plan, final code, retries used, final answer</label><br>
+        <label class="chk"><input type="checkbox"> Optional: expandable "agent trace" panel per node — this is your demo wow-factor</label><br>
+        <label class="chk"><input type="checkbox"> Keep CLI working too (<code class="inline">python run.py data.csv "question"</code>)</label>
+      </div>
+      <div class="block"><b class="time">15:00–18:00</b> — Stress tests + docs<br>
+        <label class="chk"><input type="checkbox"> Question with no valid answer → graceful fallback fires</label><br>
+        <label class="chk"><input type="checkbox"> CSV with a genuinely broken column → cleaning loop exits cleanly at max retries</label><br>
+        <label class="chk"><input type="checkbox"> Larger file (~50–100MB) → acceptable runtime; add row-cap warning if needed</label><br>
+        <label class="chk"><input type="checkbox"> README with architecture diagram + example runs (GitHub/portfolio ready)</label>
+      </div>
+      <div class="target"><b>✅ Day 3 test target:</b> a stranger (or fresh Claude/Gemini session) can upload a CSV, ask a question, and understand the answer + how it got there — without you explaining anything live.</div>
+    </div>
+  </div>
+
+  <!-- DAYS 4-5 -->
+  <div class="day">
+    <div class="day-head d45">
+      <div class="day-num">D4–5</div>
+      <div class="day-title"><b>Stretch Goals (optional)</b><small>Only touch these after Days 1–3 are stable</small></div>
+    </div>
+    <div class="day-body">
+      <div class="block">
+        <label class="chk"><input type="checkbox"> LangSmith full tracing dashboard (every node call, token costs)</label><br>
+        <label class="chk"><input type="checkbox"> Chart output: let the agent emit matplotlib figures shown in Streamlit</label><br>
+        <label class="chk"><input type="checkbox"> Multi-question conversation memory (follow-ups like "now break that down by month")</label><br>
+        <label class="chk"><input type="checkbox"> Benchmark suite: fixed set of 20 (CSV, question, expected answer) triples scored automatically</label><br>
+        <label class="chk"><input type="checkbox"> Model comparison experiment: gemini-2.0-flash vs gemini-1.5-pro on repair success rate</label><br>
+        <label class="chk"><input type="checkbox"> Demo video / GIF for the repo README</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="gemini">
+  <h2><span class="num">08</span>Gemini-Specific Tips</h2>
+  <p class="intro">Practical guidance for getting reliable behavior out of Gemini in each node.</p>
+  <table>
+    <tr><th>Node</th><th>Model choice</th><th>Key settings / technique</th></tr>
+    <tr><td>Plan cleaning / plan analysis</td><td><code class="inline">gemini-2.0-flash</code></td><td>Use <b>JSON mode</b> (<code class="inline">response_mime_type="application/json"</code>) so plans parse reliably; temperature ≈ 0.2</td></tr>
+    <tr><td>Generate code (both phases)</td><td><code class="inline">gemini-2.0-flash</code> (pro if struggling)</td><td>Inject the exact column list + dtypes; forbid imports beyond pandas/numpy; demand a single fenced block storing results in <code class="inline">result</code></td></tr>
+    <tr><td>Gemini-as-judge</td><td><code class="inline">gemini-2.0-flash</code></td><td>Force JSON schema {passes, reason, suggested_fix}; include the cleaned schema, NOT raw data; temperature 0</td></tr>
+    <tr><td>Synthesize answer</td><td><code class="inline">gemini-2.0-flash</code></td><td>Give question + validated result + plan summary; keep it short and honest about uncertainty</td></tr>
+  </table>
+
+  <div class="card">
+    <h3 style="margin-top:0">Cost control</h3>
+    <ul class="arrow clean">
+      <li>Feed the <b>profile</b> (KBs), never the raw CSV (MBs) — this alone keeps most calls tiny</li>
+      <li>Rule layers L1–L3 catch ~80% of failures with zero token spend</li>
+      <li>Cap judge calls at 1 per retry cycle</li>
+      <li>Free tier is enough for development; flash models are cheap even at volume</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Prompt skeleton for generate_code (the constraint-heavy one)</h3>
+    <pre>You are writing pandas code for a cleaned dataframe `df`.
+
+AVAILABLE COLUMNS (use ONLY these, exact spelling):
+{columns_with_dtypes_from_profile}
+
+TASK PLAN:
+{english_plan}
+
+{IF_RETRY: A previous attempt failed.
+Error/judge feedback: {error_or_suggested_fix}
+Previous code:
+{previous_code}}
+
+RULES:
+1. Import nothing except pandas (as pd) and numpy (as np).
+2. Store the final answer in a variable named `result`.
+3. No file/network/system operations.
+4. If a column seems missing, STOP and explain in a comment — never guess names.
+
+Return only the code.</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="risks">
+  <h2><span class="num">09</span>Risks &amp; Known Edge Cases</h2>
+  <p class="intro">Things that will bite you if unaddressed — all are handled somewhere in the plan above, listed here so they're explicit.</p>
+  <table>
+    <tr><th>Risk</th><th>Mitigation (already in plan)</th></tr>
+    <tr><td>Hallucinated column names</td><td>L1 AST validation + constrained prompts with exact column lists + fuzzy-match suggestions</td></tr>
+    <tr><td>Infinite loop / very slow generated code</td><td>Execution timeout wrapper on every exec call</td></tr>
+    <tr><td>Unsafe generated code (fs, network, eval)</td><td>Restricted globals namespace; reject imports outside pandas/numpy at AST level too</td></tr>
+    <tr><td>Over-aggressive cleaning (dropna kills dataset)</td><td>Critique rule: fail if rows collapse to near-zero</td></tr>
+    <tr><td>Same failed code regenerated forever</td><td>suggested_fix injection + distinct-attempt logging + hard retry cap with fallback</td></tr>
+    <tr><td>Ambiguous/impossible questions</td><td>Judge may flag honestly; fallback answer states uncertainty instead of fabricating</td></tr>
+    <tr><td>Large files blowing context or RAM</td><td>Profiling-first design + row caps / warnings in Streamlit</td></tr>
+    <tr><td>Cleaning silently corrupting analysis</td><td>Plan-vs-outcome contracts checked mechanically; Day 1 stability gate before Day 2</td></tr>
+  </table>
+
+  <div class="card good">
+    <h3 style="margin-top:0">🏆 Definition of Done</h3>
+    <ul class="check clean">
+      <li>Upload a messy CSV in Streamlit → agent profiles, plans, and cleans it within ≤3 retries</li>
+      <li>Ask a natural-language question → validated answer with visible reasoning trail</li>
+      <li>Deliberately tricky inputs (bad column reference, impossible question) → agent recovers or fails gracefully — <b>never silently wrong</b></li>
+      <li>Every run logged so anyone can inspect plan → code → critique hops</li>
+      <li>README with architecture diagram published</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Built as a personal roadmap · Self-Debugging Data Analyst Agent · LangGraph + Google Gemini + Streamlit<br>
+  Tip: print this page to PDF (Ctrl+P) if you want an offline copy.
+</footer>
+
+</div>
+</body>
+</html>

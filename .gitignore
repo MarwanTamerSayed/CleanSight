@@ -1,0 +1,34 @@
+# Environment
+.env
+
+# Data files
+*.csv
+Handling_Data/
+Cleaning_Phase/*.csv
+Cleaning_Phase/output_*.csv
+
+# Generated charts
+Analysis_Phase/charts/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter notebooks
+*.ipynb
+
+# Output files
+output*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.log

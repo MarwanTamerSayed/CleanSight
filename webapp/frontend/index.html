@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FinChat · AI Finance Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <div class="app">
+    <!-- ============================= SIDEBAR ============================= -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 17l5-6 4 4 6-8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 21h18" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <b>FinChat</b>
+          <span>AI Finance Analytics</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" id="nav-ask" data-view="ask">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Ask Assistant
+        </button>
+        <button class="nav-item" id="nav-data" data-view="data">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Data Prep
+        </button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="sstatus" id="sidebar-status">
+          <span class="dot" id="backend-dot"></span>
+          <div>
+            <div class="sstatus-title" id="backend-name">Backend</div>
+            <div class="sstatus-sub" id="backend-state">checking…</div>
+          </div>
+        </div>
+        <small class="foot-note">LangGraph · Ollama · OpenRouter</small>
+      </div>
+    </aside>
+
+    <!-- ============================== MAIN =============================== -->
+    <main class="main">
+      <header class="topbar">
+        <h1 id="view-title">Ask the Finance Assistant</h1>
+        <div class="topbar-controls">
+          <label class="select-wrap" title="Dataset to analyze">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            <select id="dataset-select">
+              <option value="">Loading datasets…</option>
+            </select>
+          </label>
+          <button class="btn upload-btn" id="upload-topbar" title="Upload a CSV from your computer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8l-5-5-5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Upload CSV
+          </button>
+          <input type="file" id="file-input" accept=".csv,text/csv" hidden />
+          <div class="switch" id="backend-switch" title="Choose the LLM backend">
+            <button data-backend="openrouter" class="on">OpenRouter</button>
+            <button data-backend="local">Local</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ========================== VIEW: ASK ============================ -->
+      <section id="view-ask" class="view">
+        <div class="ask-layout">
+          <div class="chat-col">
+            <div class="thread" id="thread">
+              <div class="empty" id="empty-state">
+                <div class="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l1.9 5.7L19.5 11l-5.6 2.3L12 19l-1.9-5.7L4.5 11l5.6-2.3z" stroke-linejoin="round"/></svg>
+                </div>
+                <h2>Ask anything about your data</h2>
+                <p>Our agentic pipeline plans, codes and critiques until it produces a validated answer with charts.</p>
+                <div class="chips" id="suggest-chips">
+                  <button>What are the top 5 best-selling dishes?</button>
+                  <button>Which day has the most customers?</button>
+                  <button>Overall total sales trend over time?</button>
+                </div>
+              </div>
+            </div>
+
+            <form class="composer" id="ask-form" autocomplete="off">
+              <textarea id="question" rows="1" placeholder="Ask a question about the selected dataset…"></textarea>
+              <div class="composer-side">
+                <div class="session-row">
+                  <span class="session-indicator" id="session-indicator" title="This session remembers your last 5 questions">memory on</span>
+                  <button type="button" class="link-btn" id="new-session-btn" title="Start a new conversation (clears memory)">new session</button>
+                </div>
+                <label class="toggle" title="Prefer interactive (hoverable) Plotly charts">
+                  <input type="checkbox" id="interactive-toggle" />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                  <span class="toggle-label">interactive charts</span>
+                </label>
+                <button type="submit" id="send-btn" aria-label="Send">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </form>
+            <div class="composer-hint" id="composer-hint"></div>
+          </div>
+
+          <aside class="pipeline-col">
+            <div class="card pipeline" id="pipeline-card">
+              <div class="card-title" data-toggle="pipeline-card">
+                <span>Analysis Pipeline</span>
+                <span class="pill" id="pipeline-status">idle</span>
+              </div>
+              <div class="stepper-empty" id="stepper-empty">Run a question to see the agent workflow live.</div>
+              <ol class="stepper" id="stepper" hidden></ol>
+              <div class="rev-track" id="rev-track">
+                <span>Revisions</span>
+                <b id="rev-count">0</b>
+                <span class="rev-max">/ <span id="rev-max">3</span></span>
+              </div>
+            </div>
+
+            <div class="card details collapsed" id="details-card">
+              <div class="card-title" data-toggle="details-card">
+                <span>Analysis Details</span>
+              </div>
+              <div id="details-body" class="details-body">
+                <p class="muted">Generated plan and sanitized code will appear here after a run.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ========================== VIEW: DATA =========================== -->
+      <section id="view-data" class="view" hidden>
+        <div class="data-layout">
+          <div class="card upload-card">
+            <div class="card-title">
+              <span>Upload your data</span>
+              <span class="pill cyan">CSV</span>
+            </div>
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="upload-input" accept=".csv,text/csv" hidden />
+              <div class="dz-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 8l-5-5-5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <p><b>Drop a CSV here</b> or <span class="link">browse your computer</span></p>
+              <small>It appears in Data Prep to clean, or select it directly in Ask Assistant.</small>
+            </div>
+          </div>
+
+          <div class="card clean-card">
+            <div class="card-title">
+              <span>Clean a raw dataset</span>
+              <span class="pill" id="clean-pill">multi-agent</span>
+            </div>
+            <p class="muted">Run the cleaning workflow (Load &amp; Profile → Plan → Code → Critique) and save a validated, clean CSV.</p>
+            <div class="clean-form">
+              <label class="select-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                <select id="clean-dataset"></select>
+              </label>
+              <button class="btn primary" id="clean-run" disabled>Clean &amp; Save</button>
+            </div>
+            <div id="clean-result" class="clean-result" hidden></div>
+          </div>
+
+          <div class="dataset-grid-head">
+            <h2>Datasets</h2>
+            <button class="link-btn" id="refresh-datasets">Refresh</button>
+          </div>
+          <div class="dataset-grid" id="dataset-grid"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

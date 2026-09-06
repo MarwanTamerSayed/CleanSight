@@ -1,0 +1,1 @@
+1- We want to make a memory so the LLM can see what user ask before [Session memory Or Data memory]
