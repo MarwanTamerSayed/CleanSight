@@ -1,9 +1,9 @@
-# FinChat — AI Finance Analytics
+# Cleaning & Analysis Agent
 
 An intelligent multi-agent chatbot that answers natural-language questions about financial datasets, produces charts, and runs automated data-cleaning pipelines — all through a polished dark-theme web UI.
 
 <p align="center">
-  <img src="screenshots/ask-assistant.png" alt="Ask Assistant View" width="800" />
+  <img src="screenshots/ask-chat.png" alt="Ask Assistant View" width="800" />
 </p>
 
 ---
@@ -12,7 +12,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 
 | Name | GitHub |
 |------|--------|
-| **Momen Aymen** | — |
+| **Momen Aymen** | [@momen223](https://github.com/momen223) |
 | **Marwan Tamer** | [@MarwanTamerSayed](https://github.com/MarwanTamerSayed) |
 
 ---
@@ -34,6 +34,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 ## UI Snapshots
 
 ### Ask Assistant — Chat View
+
 <p align="center">
   <img src="screenshots/ask-chat.png" alt="Ask Assistant Chat" width="800" />
 </p>
@@ -41,6 +42,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 *Ask questions in natural language and get validated answers with inline charts.*
 
 ### Analysis Pipeline — Live Progress
+
 <p align="center">
   <img src="screenshots/pipeline-running.png" alt="Pipeline Running" width="800" />
 </p>
@@ -48,6 +50,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 *Watch the Planner → Coder → Critique → Synthesizer pipeline execute in real time.*
 
 ### Charts — Interactive & Downloadable
+
 <p align="center">
   <img src="screenshots/charts-inline.png" alt="Inline Charts" width="800" />
 </p>
@@ -55,6 +58,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 *Charts render inline with open and download buttons. Toggle interactive Plotly charts above the send button.*
 
 ### Data Prep — Cleaning Workflow
+
 <p align="center">
   <img src="screenshots/data-prep.png" alt="Data Preparation" width="800" />
 </p>
@@ -62,6 +66,7 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 *Upload CSVs, run the multi-agent cleaning pipeline, and download validated clean files.*
 
 ### Cleaning Result — Validation Details
+
 <p align="center">
   <img src="screenshots/cleaning-result.png" alt="Cleaning Result" width="800" />
 </p>
@@ -73,25 +78,26 @@ An intelligent multi-agent chatbot that answers natural-language questions about
 ## Project Structure
 
 ```
-Finance-Agent/
+Cleaning-Agent/
 ├── .gitignore
+├── README.md
 ├── Analysis_Phase/
-│   ├── multi_agent_analysis.py          # Local/Ollama analysis pipeline
-│   └── multi_agent_analysis_openrouter.py  # OpenRouter analysis pipeline
+│   ├── multi_agent_analysis.py              # Local/Ollama analysis pipeline
+│   └── multi_agent_analysis_openrouter.py   # OpenRouter analysis pipeline
 ├── Cleaning_Phase/
-│   ├── multi_agent_cleaning.py          # Local cleaning pipeline
-│   └── multi_agent_cleaning_openrouter.py  # OpenRouter cleaning pipeline
-├── Handling_Data/                       # Raw dataset storage (gitignored)
+│   ├── multi_agent_cleaning.py              # Local cleaning pipeline
+│   └── multi_agent_cleaning_openrouter.py   # OpenRouter cleaning pipeline
+├── Handling_Data/                           # Raw dataset storage (gitignored)
 ├── webapp/
-│   ├── run.py                           # One-command launcher
+│   ├── run.py                               # One-command launcher
 │   ├── requirements.txt
 │   ├── backend/
-│   │   └── main.py                      # FastAPI app + job system
+│   │   └── main.py                          # FastAPI app + job system + chat memory
 │   └── frontend/
 │       ├── index.html
 │       ├── css/style.css
 │       └── js/app.js
-└── screenshots/                         # UI snapshots for README
+└── screenshots/                             # UI snapshots for README
 ```
 
 ---
@@ -107,8 +113,8 @@ Finance-Agent/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/MarwanTamerSayed/Finance-Agent.git
-cd Finance-Agent
+git clone https://github.com/MarwanTamerSayed/Cleaning-Agent.git
+cd Cleaning-Agent
 ```
 
 ### 2. Set Up Environment
@@ -159,15 +165,15 @@ Switch between backends using the toggle in the top bar.
 
 ```
 User Question
-     │
-     ▼
-┌─────────┐    ┌────────┐    ┌──────────┐    ┌────────────┐
-│ Planner │───▶│ Coder  │───▶│ Reviser  │───▶│ Synthesizer│
-│ (plan)  │    │ (code) │    │ (validate│    │ (answer)   │
-└─────────┘    └────────┘    │  & revise│    └────────────┘
-                             └────┬─────┘
-                                  │ loops back if
-                                  ▼ validation fails
+     |
+     v
++----------+    +--------+    +----------+    +------------+
+| Planner  |--->| Coder  |--->| Reviser  |--->| Synthesizer|
+| (plan)   |    | (code) |    | (validate|    | (answer)   |
++----------+    +--------+    |  & revise|    +------------+
+                              +----+-----+
+                                   | loops back if
+                                   v validation fails
 ```
 
 1. **Planner** — Designs the analysis plan from the dataset schema and question
@@ -179,22 +185,24 @@ User Question
 
 ```
 Raw CSV
-   │
-   ▼
-┌──────────────────┐    ┌─────────┐    ┌────────┐    ┌──────────┐
-│ Load & Profile   │───▶│ Planner │───▶│ Coder  │───▶│ Reviser  │
-│ (analyze schema) │    │ (plan)  │    │ (code) │    │ (validate│
-└──────────────────┘    └─────────┘    └────────┘    └──────────┘
+   |
+   v
++------------------+    +---------+    +--------+    +----------+
+| Load & Profile   |--->| Planner |--->| Coder  |--->| Reviser  |
+| (analyze schema) |    | (plan)  |    | (code) |    | (validate|
++------------------+    +---------+    +--------+    +----------+
 ```
 
 ---
 
 ## Technology Stack
 
-- **Backend:** Python, FastAPI, LangGraph, LangChain
-- **Frontend:** Vanilla JavaScript, CSS3, HTML5
-- **AI:** OpenRouter API / Ollama (local)
-- **Data:** Pandas, Matplotlib, Plotly
+| Layer | Technologies |
+|-------|-------------|
+| **Backend** | Python, FastAPI, LangGraph, LangChain |
+| **Frontend** | Vanilla JavaScript, CSS3, HTML5 |
+| **AI** | OpenRouter API / Ollama (local) |
+| **Data** | Pandas, Matplotlib, Plotly |
 
 ---
 
